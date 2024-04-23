@@ -1,55 +1,161 @@
-#Download realtek r8168 linux driver from official site [https://www.realtek.com/component/zoo/category/network-interface-controllers-10-100-1000m-gigabit-ethernet-pci-express-software]
-#Unpack source file
-#Replace orginal Makefile with this file
-#Put this source to 'package' folder of OpenWRT/LEDE SDK
-#Build(make menuconfig, make defconfig, make)
+################################################################################
+#
+# r8168 is the Linux device driver released for Realtek Gigabit Ethernet
+# controllers with PCI-Express interface.
+#
+# Copyright(c) 2019 Realtek Semiconductor Corp. All rights reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 2 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, see <http://www.gnu.org/licenses/>.
+#
+# Author:
+# Realtek NIC software team <nicfae@realtek.com>
+# No. 2, Innovation Road II, Hsinchu Science Park, Hsinchu 300, Taiwan
+#
+################################################################################
 
-include $(TOPDIR)/rules.mk
-include $(INCLUDE_DIR)/kernel.mk
+################################################################################
+#  This product is covered by one or more of the following patents:
+#  US6,570,884, US6,115,776, and US6,327,625.
+################################################################################
 
-PKG_NAME:=r8168
-PKG_VERSION:=8.048.03
-PKG_RELEASE:=3
+CONFIG_SOC_LAN = n
+ENABLE_FIBER_SUPPORT = n
+ENABLE_REALWOW_SUPPORT = n
+ENABLE_DASH_SUPPORT = n
+ENABLE_DASH_PRINTER_SUPPORT = n
+CONFIG_DOWN_SPEED_100 = n
+CONFIG_ASPM = y
+ENABLE_S5WOL = y
+ENABLE_S5_KEEP_CURR_MAC = n
+ENABLE_EEE = y
+ENABLE_S0_MAGIC_PACKET = n
 
-#PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.bz2
-#PKG_CAT:=bzcat
+ifneq ($(KERNELRELEASE),)
+	obj-m := r8168.o
+	r8168-objs := r8168_n.o r8168_asf.o rtl_eeprom.o rtltool.o
+	ifeq ($(CONFIG_SOC_LAN), y)
+		EXTRA_CFLAGS += -DCONFIG_SOC_LAN
+	endif
+	ifeq ($(ENABLE_FIBER_SUPPORT), y)
+	    r8168-objs += r8168_fiber.o
+		EXTRA_CFLAGS += -DENABLE_FIBER_SUPPORT
+	endif
+	ifeq ($(ENABLE_REALWOW_SUPPORT), y)
+	    r8168-objs += r8168_realwow.o
+		EXTRA_CFLAGS += -DENABLE_REALWOW_SUPPORT
+	endif
+	ifeq ($(ENABLE_DASH_SUPPORT), y)
+	    r8168-objs += r8168_dash.o
+		EXTRA_CFLAGS += -DENABLE_DASH_SUPPORT
+	endif
+	ifeq ($(ENABLE_DASH_PRINTER_SUPPORT), y)
+	    r8168-objs += r8168_dash.o
+		EXTRA_CFLAGS += -DENABLE_DASH_SUPPORT -DENABLE_DASH_PRINTER_SUPPORT
+	endif
+	EXTRA_CFLAGS += -DCONFIG_R8168_NAPI
+	EXTRA_CFLAGS += -DCONFIG_R8168_VLAN
+	ifeq ($(CONFIG_DOWN_SPEED_100), y)
+		EXTRA_CFLAGS += -DCONFIG_DOWN_SPEED_100
+	endif
+	ifeq ($(CONFIG_ASPM), y)
+		EXTRA_CFLAGS += -DCONFIG_ASPM
+	endif
+	ifeq ($(ENABLE_S5WOL), y)
+		EXTRA_CFLAGS += -DENABLE_S5WOL
+	endif
+	ifeq ($(ENABLE_S5_KEEP_CURR_MAC), y)
+		EXTRA_CFLAGS += -DENABLE_S5_KEEP_CURR_MAC
+	endif
+	ifeq ($(ENABLE_EEE), y)
+		EXTRA_CFLAGS += -DENABLE_EEE
+	endif
+	ifeq ($(ENABLE_S0_MAGIC_PACKET), y)
+		EXTRA_CFLAGS += -DENABLE_S0_MAGIC_PACKET
+	endif
+else
+	BASEDIR := /lib/modules/$(shell uname -r)
+	KERNELDIR ?= $(BASEDIR)/build
+	PWD :=$(shell pwd)
+	DRIVERDIR := $(shell find $(BASEDIR)/kernel/drivers/net/ethernet -name realtek -type d)
+	ifeq ($(DRIVERDIR),)
+		DRIVERDIR := $(shell find $(BASEDIR)/kernel/drivers/net -name realtek -type d)
+	endif
+	ifeq ($(DRIVERDIR),)
+		DRIVERDIR := $(BASEDIR)/kernel/drivers/net
+	endif
+	RTKDIR := $(subst $(BASEDIR)/,,$(DRIVERDIR))
 
-PKG_BUILD_DIR:=$(KERNEL_BUILD_DIR)/$(PKG_NAME)-$(PKG_VERSION)
+	KERNEL_GCC_VERSION := $(shell cat /proc/version | sed -n 's/.*gcc version \([[:digit:]]\.[[:digit:]]\.[[:digit:]]\).*/\1/p')
+	CCVERSION = $(shell $(CC) -dumpversion)
 
-include $(INCLUDE_DIR)/package.mk
+	KVER = $(shell uname -r)
+	KMAJ = $(shell echo $(KVER) | \
+	sed -e 's/^\([0-9][0-9]*\)\.[0-9][0-9]*\.[0-9][0-9]*.*/\1/')
+	KMIN = $(shell echo $(KVER) | \
+	sed -e 's/^[0-9][0-9]*\.\([0-9][0-9]*\)\.[0-9][0-9]*.*/\1/')
+	KREV = $(shell echo $(KVER) | \
+	sed -e 's/^[0-9][0-9]*\.[0-9][0-9]*\.\([0-9][0-9]*\).*/\1/')
 
-define KernelPackage/r8168
-  TITLE:=Driver for Realtek r8168 chipsets
-  SUBMENU:=Network Devices
-  VERSION:=$(LINUX_VERSION)+$(PKG_VERSION)-$(BOARD)-$(PKG_RELEASE)
-  FILES:= $(PKG_BUILD_DIR)/r8168.ko
-  AUTOLOAD:=$(call AutoProbe,r8168)
-  DEFAULT:=y
-endef
+	kver_ge = $(shell \
+	echo test | awk '{if($(KMAJ) < $(1)) {print 0} else { \
+	if($(KMAJ) > $(1)) {print 1} else { \
+	if($(KMIN) < $(2)) {print 0} else { \
+	if($(KMIN) > $(2)) {print 1} else { \
+	if($(KREV) < $(3)) {print 0} else { print 1 } \
+	}}}}}' \
+	)
 
-define Package/r8168/description
- This package contains a driver for Realtek r8168 chipsets.
-endef
+.PHONY: all
+all: print_vars clean modules install
 
-R8168_MAKEOPTS= -C $(PKG_BUILD_DIR) \
-		PATH="$(TARGET_PATH)" \
-		ARCH="$(LINUX_KARCH)" \
-		CROSS_COMPILE="$(TARGET_CROSS)" \
-		TARGET="$(HAL_TARGET)" \
-		TOOLPREFIX="$(KERNEL_CROSS)" \
-		TOOLPATH="$(KERNEL_CROSS)" \
-		KERNELPATH="$(LINUX_DIR)" \
-		KERNELDIR="$(LINUX_DIR)" \
-		LDOPTS=" " \
-		DOMULTI=1
+print_vars:
+	@echo
+	@echo "CC: " $(CC)
+	@echo "CCVERSION: " $(CCVERSION)
+	@echo "KERNEL_GCC_VERSION: " $(KERNEL_GCC_VERSION)
+	@echo "KVER: " $(KVER)
+	@echo "KMAJ: " $(KMAJ)
+	@echo "KMIN: " $(KMIN)
+	@echo "KREV: " $(KREV)
+	@echo "BASEDIR: " $(BASEDIR)
+	@echo "DRIVERDIR: " $(DRIVERDIR)
+	@echo "PWD: " $(PWD)
+	@echo "RTKDIR: " $(RTKDIR)
+	@echo
 
-define Build/Prepare
-	mkdir -p $(PKG_BUILD_DIR)
-	$(CP) ./src/* $(PKG_BUILD_DIR)
-endef
+.PHONY:modules
+modules:
+#ifeq ($(call kver_ge,5,0,0),1)
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) modules
+#else
+#	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules
+#endif
 
-define Build/Compile
-	$(MAKE) $(R8168_MAKEOPTS) modules
-endef
+.PHONY:clean
+clean:
+#ifeq ($(call kver_ge,5,0,0),1)
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) clean
+#else
+#	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) clean
+#endif
 
-$(eval $(call KernelPackage,r8168))
+.PHONY:install
+install:
+#ifeq ($(call kver_ge,5,0,0),1)
+	$(MAKE) -C $(KERNELDIR) M=$(PWD) INSTALL_MOD_DIR=$(RTKDIR) modules_install
+#else
+#	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) INSTALL_MOD_DIR=$(RTKDIR) modules_install
+#endif
+
+endif
