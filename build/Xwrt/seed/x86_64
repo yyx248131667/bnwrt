@@ -65,6 +65,7 @@ CONFIG_PACKAGE_kmod-nft-compat=y
 CONFIG_PACKAGE_kmod-nft-socket=m
 # CONFIG_PACKAGE_kmod-phy-realtek is not set
 # CONFIG_PACKAGE_kmod-r8169 is not set
+CONFIG_PACKAGE_kmod-r8168=y
 CONFIG_PACKAGE_kmod-sit=y
 CONFIG_PACKAGE_kmod-tun=m
 CONFIG_PACKAGE_libatomic=y
