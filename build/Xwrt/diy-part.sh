@@ -3,6 +3,8 @@
 # DIY扩展二合一了，在此处可以增加插件
 # 自行拉取插件之前请SSH连接进入固件配置里面确认过没有你要的插件再单独拉取你需要的插件
 # 不要一下就拉取别人一个插件包N多插件的，多了没用，增加编译错误，自己需要的才好
+# 拉取插件
+git clone https://github.com/goldkeyber112/openwrt-r8168.git package/xwrt/kmod-r8169
 
 
 # 后台IP设置
@@ -95,7 +97,7 @@ version.buildinfo
 profiles.json
 #openwrt-x86-64-generic-kernel.bin
 openwrt-x86-64-generic.manifest
-openwrt-x86-64-generic-squashfs-rootfs.img.gz
+#openwrt-x86-64-generic-squashfs-rootfs.img.gz
 EOF
 
 # 在线更新时，删除不想保留固件的某个文件，在EOF跟EOF之间加入删除代码，记住这里对应的是固件的文件路径，比如： rm -rf /etc/config/luci
