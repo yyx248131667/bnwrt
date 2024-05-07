@@ -5,8 +5,11 @@
 # 不要一下就拉取别人一个插件包N多插件的，多了没用，增加编译错误，自己需要的才好
 
 #增加软件包
-sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages.git;master' feeds.conf.default
-sed -i '$a src-git small https://github.com/kenzok8/small.git;master' feeds.conf.default
+#sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages.git;master' feeds.conf.default
+#sed -i '$a src-git small https://github.com/kenzok8/small.git;master' feeds.conf.default
+
+sed -i '$a src-git haibo https://github.com/haiibo/openwrt-packages;master' feeds.conf.default
+sed -i '$a src-git liuran001 https://github.com/liuran001/openwrt-packages;master' feeds.conf.default
 
 # 后台IP设置
 export Ipv4_ipaddr="192.168.2.1"            # 修改openwrt后台地址(填0为关闭)
