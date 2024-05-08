@@ -9,11 +9,7 @@
 #sed -i '$a src-git small https://github.com/kenzok8/small.git;master' feeds.conf.default
 sed -i '$a src-git helloworld https://github.com/fw876/helloworld.git;main' feeds.conf.default
 sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages.git;master' feeds.conf.default
-#添加主题
 
-#sed -i 's/luci-theme-bootstrap/luci-theme-edge/g' openwrt/feeds/luci/collections/luci/Makefile
-#sed -i 's/https://github.com/gngpp/luci-app-design-config.git package/luci-app-design-config
-sed -i 's/luci-theme-bootstrap/luci-theme-design/g' openwrt/feeds/luci/collections/luci/Makefile
 # 后台IP设置
 export Ipv4_ipaddr="192.168.2.1"            # 修改openwrt后台地址(填0为关闭)
 export Netmask_netm="255.255.255.0"         # IPv4 子网掩码（默认：255.255.255.0）(填0为不作修改)
