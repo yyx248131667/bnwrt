@@ -5,7 +5,10 @@
 # 不要一下就拉取别人一个插件包N多插件的，多了没用，增加编译错误，自己需要的才好
 # 拉取插件
 
-
+sed -i '$a src-git helloworld https://github.com/fw876/helloworld.git;main' feeds.conf.default
+sed -i '$a src-git kenzo https://github.com/kenzok8/openwrt-packages.git;master' feeds.conf.default
+sed -i '$a src-git small https://github.com/kenzok8/small.git;master' feeds.conf.default
+sed -i '$a src-git small8 https://github.com/kenzok8/small-package.git;main' feeds.conf.default
 
 # 后台IP设置
 export Ipv4_ipaddr="192.168.2.1"            # 修改openwrt后台地址(填0为关闭)
