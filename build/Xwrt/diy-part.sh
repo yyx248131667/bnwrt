@@ -10,6 +10,16 @@
 #sed -i '$a src-git small https://github.com/kenzok8/small.git;master' feeds.conf.default
 #sed -i '$a src-git small8 https://github.com/kenzok8/small-package.git;main' feeds.conf.default
 
+
+# 修改源码默认配置
+sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/Makefile
+sed -i 's/OpenWrt/X-Wrt/g' package/base-files/files/bin/config_generate
+
+# 应用补丁
+echo "Applying patch 101-fix-mbedtls3.6-build.patch..."
+patch -p1 < "${GITHUB_WORKSPACE}/101-fix-mbedtls3.6-build.patch"
+
+
 # 后台IP设置
 export Ipv4_ipaddr="192.168.2.1"            # 修改openwrt后台地址(填0为关闭)
 export Netmask_netm="255.255.255.0"         # IPv4 子网掩码（默认：255.255.255.0）(填0为不作修改)
