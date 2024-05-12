@@ -164,11 +164,6 @@ jobs:
         ln -sf /${{ env.DIY_WORK }}/openwrt ${GITHUB_WORKSPACE}/openwrt
         cp -Rf ${GITHUB_WORKSPACE}/build ${GITHUB_WORKSPACE}/openwrt/build
         chmod -R +x ${GITHUB_WORKSPACE}/openwrt/build
-     - name: 应用补丁
-       run: |
-        cd openwrt
-        curl -o 101-fix-mbedtls3.6-build.patch https://raw.githubusercontent.com/yyx248131667/bnwrt/main/build/Xwrt/relevance/101-fix-mbedtls3.6-build.patch
-        patch -p1 < 101-fix-mbedtls3.6-build.patch
     
     - name: 公 告
       if: env.REPO_TOKEN
