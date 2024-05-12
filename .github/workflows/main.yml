@@ -86,7 +86,7 @@ on:
 #   - cron: 35 18 * * *
 
 env:
-  GITHUB_LINK: https://github.com/yyx248131667/x86-6.8
+  GITHUB_LINK: https://github.com/yyx248131667/x86-6.8/
   GIT_ACTOR: yyx248131667
   GIT_REPOSITORY: yyx248131667/x86-6.8
   RUN_NUMBER: ${{ github.run_number }}
@@ -125,23 +125,6 @@ jobs:
     - name: 准备结束
       uses: actions/checkout@v4
 
-    - name: 检测文件和对比上游版本
-      run: |
-        cd ${GITHUB_WORKSPACE}
-        bash <(curl -fsSL https://raw.githubusercontent.com/281677160/common/main/custom/first.sh)
-        source ${GITHUB_WORKSPACE}/build/${{ env.FOLDER_NAME }}/settings.ini
-        export INPUTS_REPO_BRANCH="${{ github.event.inputs.REPO_BRANCH }}"
-        export INPUTS_CONFIG_FILE="${{ github.event.inputs.CONFIG_FILE }}"
-        export INPUTS_CPU_SELECTION="${{ github.event.inputs.CPU_SELECTION }}"
-        export INPUTS_INFORMATION_NOTICE="${{ github.event.inputs.INFORMATION_NOTICE }}"
-        export INPUTS_SSH_ACTION="${{ github.event.inputs.SSH_ACTION }}"
-        export INPUTS_UPLOAD_FIRMWARE="${{ github.event.inputs.UPLOAD_FIRMWARE }}"
-        export INPUTS_UPLOAD_RELEASE="${{ github.event.inputs.UPLOAD_RELEASE }}"
-        export INPUTS_CACHEWRTBUILD_SWITCH="${{ github.event.inputs.CACHEWRTBUILD_SWITCH }}"
-        export INPUTS_UPDATE_FIRMWARE_ONLINE="${{ github.event.inputs.UPDATE_FIRMWARE_ONLINE }}"
-        export INPUTS_COMPILATION_INFORMATION="${{ github.event.inputs.COMPILATION_INFORMATION }}"
-        export INPUTS_PACKAGING_FIRMWARE="${{ github.event.inputs.PACKAGING_FIRMWARE }}"
-        source build/${{ env.FOLDER_NAME }}/common.sh && Diy_menu1
 
     - name: 部署编译环境
       env:
