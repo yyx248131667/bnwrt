@@ -16,8 +16,8 @@ sed -i 's/luci-theme-bootstrap/luci-theme-argon/g' feeds/luci/collections/luci/M
 sed -i 's/OpenWrt/X-Wrt/g' package/base-files/files/bin/config_generate
 
 # 应用补丁
-echo "Applying patch 101-fix-mbedtls3.6-build.patch..."
-patch -p1 < "${GITHUB_WORKSPACE}/101-fix-mbedtls3.6-build.patch"
+#echo "Applying patch 101-fix-mbedtls3.6-build.patch..."
+#patch -p1 < "${GITHUB_WORKSPACE}/101-fix-mbedtls3.6-build.patch"
 
 
 # 后台IP设置
